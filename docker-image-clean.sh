@@ -2,7 +2,6 @@
 
 function cleanDockerImages() {
 	echo "Analyzing docker images for cleanup from the last ${CLEAN_PERIOD}..."
-	image_tag="${IMAGE_TAG}"
 	images=$(docker images | tail -n +2 | cut -f 1 -d ' ')
 	for image in ${images}; do
 		if [ "${image}" == "<none>" ] || [[ "${image}" == "${PROTECTED_IMAGE_PREFIX}"* ]]; then
@@ -10,10 +9,10 @@ function cleanDockerImages() {
 			continue
 		fi
 		echo "Checking image: ${image} for events..."
-		image_events=$(timeout 5s docker events --filter "image=${image}:${image_tag}" --since "${CLEAN_PERIOD}")
+		image_events=$(timeout 5s docker events --filter "image=${image}" --since "${CLEAN_PERIOD}")
 		if [ -z "${image_events}" ]; then
-			echo "deleting ${image}:${image_tag}..."
-			docker rmi ${image}:${image_tag}
+			echo "deleting ${image}..."
+			docker rmi ${image}
 		fi
 	done
 
