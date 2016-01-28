@@ -9,5 +9,6 @@ RUN chmod +x docker-image-clean.sh
 ENV CLEAN_INTERVAL 30
 ENV CLEAN_PERIOD 24h
 ENV PROTECTED_IMAGE_PREFIX codefresh-running/
+ENV IMAGE_TAG staging
 
 CMD ./docker-image-clean.sh
