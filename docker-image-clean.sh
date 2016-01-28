@@ -12,6 +12,7 @@ function cleanDockerImages() {
 		image_events=$(timeout 5s docker events --filter "image=${image}" --since "${CLEAN_PERIOD}")
 		if [ -z "${image_events}" ]; then
 			echo "deleting ${image}..."
+			docker rmi ${image}
 		fi
 	done
 
