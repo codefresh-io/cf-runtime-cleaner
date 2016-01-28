@@ -21,8 +21,8 @@ function cleanDockerImages() {
 	done
 
 	# Remove none images
-	echo "Trying to delete all <none> images. Images with dependencies will not be deleted."
-	docker rmi $(docker images -a | grep -i "<none>" | awk -F" " '{print$3}')
+	echo "Deleting all dangling images."
+	docker rmi $(docker images -q --filter "dangling=true")
 }
 
 export -f cleanDockerImages
