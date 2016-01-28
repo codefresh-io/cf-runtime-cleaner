@@ -22,7 +22,10 @@ function cleanDockerImages() {
 
 	# Remove none images
 	echo "Deleting all dangling images."
-	docker rmi $(docker images -q --filter "dangling=true")
+	docker_dangling=$(docker images -q --filter "dangling=true")
+	if [ ! -z "${docker_dangling}" ]; then
+		docker rmi ${docker_dangling}
+	fi
 }
 
 export -f cleanDockerImages
