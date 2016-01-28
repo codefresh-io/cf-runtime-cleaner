@@ -4,7 +4,8 @@ function cleanDockerImages() {
 	echo "Analyzing docker images for cleanup from the last ${CLEAN_PERIOD}..."
 	images=$(docker images | tail -n +2 | cut -f 1 -d ' ')
 	for image in ${images}; do
-		if [ "${image}" == "<none>" ]; then
+		if [ "${image}" == "<none>" ] || [[ "${image}" == "${PROTECTED_IMAGE_PREFIX}"* ]]; then
+			echo "${image} ignored."
 			continue
 		fi
 		echo "Checking image: ${image} for events..."
@@ -20,7 +21,7 @@ function cleanDockerImages() {
 }
 
 export -f cleanDockerImages
-
+	
 echo "Starting to clean images every ${CLEAN_INTERVAL}..."
 
 while true
