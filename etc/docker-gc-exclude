@@ -1,2 +1,2 @@
-codefresh-running/codefresh/git-clone
-codefresh/buildpackscd ..
+codefresh-running/codefresh/git-clone:.*
+codefresh-running/codefresh/cf-integration:.*
