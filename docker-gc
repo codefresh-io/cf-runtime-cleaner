@@ -140,7 +140,10 @@ function compute_exclude_ids() {
         | sed 's/^\([^ ]*\) *\([^ ]*\) *\([^ ]*\).*/ \1:\2 \3 /' \
         | grep -f $PROCESSED_EXCLUDES 2>/dev/null \
         | cut -d' ' -f3 \
-        | sed 's/^/^/' > $EXCLUDE_IDS_FILE
+        | sed 's/^/^\\\(sha256:\\\)\\\?/' > $EXCLUDE_IDS_FILE
+        
+    echo -e "\n--- Excluded images pattern:\n$(cat $PROCESSED_EXCLUDES) "
+    echo -e "Excluded imaged ids: \n $(cat $EXCLUDE_IDS_FILE) "
 }
 
 function compute_exclude_container_ids() {
