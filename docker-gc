@@ -257,17 +257,36 @@ sort | uniq > images.used
 # List images to reap; images that existed last run and are not in use.
 $DOCKER images -q --no-trunc | sort | uniq > images.all
 
-# Find images that are created at least GRACE_PERIOD_SECONDS ago
+echo -e "\n----- Search for old images that are created at least ${GRACE_PERIOD_SECONDS}s ago and do not have recent events"
 echo -n "" > images.reap.tmp
 cat images.all | while read line
 do
     CREATED=$(${DOCKER} inspect -f "{{.Created}}" ${line})
     ELAPSED=$(elapsed_time $CREATED)
     if [[ $ELAPSED -gt $GRACE_PERIOD_SECONDS ]]; then
-        echo $line >> images.reap.tmp
+        OLD_IMAGE_ID=${line}
+        OLD_IMAGE_TAGS=$(${DOCKER} inspect -f {{.RepoTags}} ${OLD_IMAGE_ID} | sed 's/^\[\(.*\)\]$/\1/g' )
+        echo "\nOld image found: id=${line} , tags = $OLD_IMAGE_TAGS "
+        ## Search for events
+        image_events=""
+        for ii in $OLD_IMAGE_TAGS
+        do 
+           
+           image_events=$(${DOCKER} events --since ${GRACE_PERIOD_SECONDS}s --until '0s' --filter="image=${ii}")
+           if [[ -n ${image_events} ]]; then
+             echo "    NOT delete image ${OLD_IMAGE_ID} - ${ii} recent ${GRACE_PERIOD_SECONDS}s events exist"
+             break
+           fi
+        done
+        
+        if [[ -z ${image_events} ]]; then
+          echo "    MARKED for DELETE image ${OLD_IMAGE_ID} "
+          echo ${OLD_IMAGE_ID} >> images.reap.tmp
+        fi
     fi
 done
 comm -23 images.reap.tmp images.used | grep -v -f $EXCLUDE_IDS_FILE > images.reap || true
+echo -e "\n---- $(wc -l images.reap) images marked for delete ----\n"
 
 # Use -f flag on docker rm command; forces removal of images that are in Dead
 # status or give errors when removing.
