@@ -266,7 +266,7 @@ do
     if [[ $ELAPSED -gt $GRACE_PERIOD_SECONDS ]]; then
         OLD_IMAGE_ID=${line}
         OLD_IMAGE_TAGS=$(${DOCKER} inspect -f {{.RepoTags}} ${OLD_IMAGE_ID} | sed 's/^\[\(.*\)\]$/\1/g' )
-        echo -e "\nOld image found: id=${line} , tags = $OLD_IMAGE_TAGS "
+        echo -e "\nOld image found: tags = ${OLD_IMAGE_TAGS} , id=${line}"
         ## Search for events
         image_events=""
         for ii in $OLD_IMAGE_TAGS
@@ -274,7 +274,7 @@ do
            
            image_events=$(${DOCKER} events --since ${GRACE_PERIOD_SECONDS}s --until '0s' --filter="image=${ii}")
            if [[ -n ${image_events} ]]; then
-             echo "    NOT delete old image ${OLD_IMAGE_ID} - ${ii} recent ${GRACE_PERIOD_SECONDS}s events exist"
+             echo "    NOT delete - ${ii} has recent ${GRACE_PERIOD_SECONDS}s events"
              break
            fi
         done
