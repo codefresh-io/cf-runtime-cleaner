@@ -266,7 +266,7 @@ do
     if [[ $ELAPSED -gt $GRACE_PERIOD_SECONDS ]]; then
         OLD_IMAGE_ID=${line}
         OLD_IMAGE_TAGS=$(${DOCKER} inspect -f {{.RepoTags}} ${OLD_IMAGE_ID} | sed 's/^\[\(.*\)\]$/\1/g' )
-        echo "\nOld image found: id=${line} , tags = $OLD_IMAGE_TAGS "
+        echo -e "\nOld image found: id=${line} , tags = $OLD_IMAGE_TAGS "
         ## Search for events
         image_events=""
         for ii in $OLD_IMAGE_TAGS
@@ -274,14 +274,17 @@ do
            
            image_events=$(${DOCKER} events --since ${GRACE_PERIOD_SECONDS}s --until '0s' --filter="image=${ii}")
            if [[ -n ${image_events} ]]; then
-             echo "    NOT delete image ${OLD_IMAGE_ID} - ${ii} recent ${GRACE_PERIOD_SECONDS}s events exist"
+             echo "    NOT delete old image ${OLD_IMAGE_ID} - ${ii} recent ${GRACE_PERIOD_SECONDS}s events exist"
              break
            fi
         done
         
-        if [[ -z ${image_events} ]]; then
-          echo "    MARKED for DELETE image ${OLD_IMAGE_ID} "
+        if [[ -z ${image_events} ]]; then          
           echo ${OLD_IMAGE_ID} >> images.reap.tmp
+          ### For logging only
+          grep -q ${OLD_IMAGE_ID} images.used && echo "    NOT delete - the image is in use"
+          echo ${OLD_IMAGE_ID} | grep -q -f exclude_ids && echo "    NOT delete - the image is excluded by pattern"             
+          # echo "    MARKED for DELETE image ${OLD_IMAGE_ID} "          
         fi
     fi
 done
@@ -294,13 +297,18 @@ FORCE_CONTAINER_FLAG=""
 if [[ $FORCE_CONTAINER_REMOVAL -gt 0 ]]; then
     FORCE_CONTAINER_FLAG="-f"
 fi
+
 # Reap containers.
-if [[ $RM_DRY_RUN -gt 0 ]]; then    
-    container_log "Unused containers list - DO NOT REMOVE" containers.reap
+if [[ ! -s containers.reap ]]; then
+  if [[ $RM_DRY_RUN -gt 0 ]]; then    
+      container_log "Unused containers list - DO NOT REMOVE" containers.reap
+  else
+      container_log "Removing containers" containers.reap
+      xargs -n 1 $DOCKER rm $FORCE_CONTAINER_FLAG --volumes=true < containers.reap || true
+  fi
 else
-    container_log "Removing containers" containers.reap
-    xargs -n 1 $DOCKER rm $FORCE_CONTAINER_FLAG --volumes=true < containers.reap || true
-fi
+  echo "No containers for deletion found"
+fi  
 
 # Use -f flag on docker rmi command; forces removal of images that have multiple tags
 FORCE_IMAGE_FLAG=""
@@ -309,13 +317,18 @@ if [[ $FORCE_IMAGE_REMOVAL -gt 0 ]]; then
 fi
 
 # Reap images.
-echo -e "\nDeleting images."
-if [[ $RMI_DRY_RUN -gt 0 ]]; then
-    image_log "dry-run - removing" images.reap
+if [[ ! -s images.reap ]]; then
+  echo -e "\nDeleting images."
+  if [[ $RMI_DRY_RUN -gt 0 ]]; then
+      image_log "dry-run - removing" images.reap
+  else
+      image_log "Removing image" images.reap
+      xargs -n 1 $DOCKER rmi $FORCE_IMAGE_FLAG < images.reap  || true
+  fi
 else
-    image_log "Removing image" images.reap
-    xargs -n 1 $DOCKER rmi $FORCE_IMAGE_FLAG < images.reap  || true
+  echo "No image for deletion found"
 fi
+
 echo "Disk Usage after normal image cleaning"
 df -BM $DOCKER_STORAGE_DIR
 
