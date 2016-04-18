@@ -282,8 +282,8 @@ do
         if [[ -z ${image_events} ]]; then          
           echo ${OLD_IMAGE_ID} >> images.reap.tmp
           ### For logging only
-          grep -q ${OLD_IMAGE_ID} images.used && echo "    NOT delete - the image is in use"
-          echo ${OLD_IMAGE_ID} | grep -q -f exclude_ids && echo "    NOT delete - the image is excluded by pattern"             
+          grep -q ${OLD_IMAGE_ID} images.used && echo "    NOT delete - the image is in use" || true
+          echo ${OLD_IMAGE_ID} | grep -q -f exclude_ids && echo "    NOT delete - the image is excluded by pattern" || true
           # echo "    MARKED for DELETE image ${OLD_IMAGE_ID} "          
         fi
     fi
