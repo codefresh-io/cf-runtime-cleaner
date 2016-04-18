@@ -289,7 +289,7 @@ do
     fi
 done
 comm -23 images.reap.tmp images.used | grep -v -f $EXCLUDE_IDS_FILE > images.reap || true
-echo -e "\n---- $(wc -l images.reap) images marked for delete ----\n"
+echo -e "\n---- $(wc -l < images.reap) images marked for delete ----\n"
 
 # Use -f flag on docker rm command; forces removal of images that are in Dead
 # status or give errors when removing.
@@ -299,7 +299,7 @@ if [[ $FORCE_CONTAINER_REMOVAL -gt 0 ]]; then
 fi
 
 # Reap containers.
-if [[ ! -s containers.reap ]]; then
+if [[ -s containers.reap ]]; then
   if [[ $RM_DRY_RUN -gt 0 ]]; then    
       container_log "Unused containers list - DO NOT REMOVE" containers.reap
   else
@@ -317,7 +317,7 @@ if [[ $FORCE_IMAGE_REMOVAL -gt 0 ]]; then
 fi
 
 # Reap images.
-if [[ ! -s images.reap ]]; then
+if [[ -s images.reap ]]; then
   echo -e "\nDeleting images."
   if [[ $RMI_DRY_RUN -gt 0 ]]; then
       image_log "dry-run - removing" images.reap
