@@ -50,7 +50,7 @@ df -BM $DOCKER_STORAGE_DIR
 
 
 set -o nounset
-set -o errexit
+# set -o errexit
 
 GRACE_PERIOD_SECONDS=${GRACE_PERIOD_SECONDS:=86400}
 STATE_DIR=${STATE_DIR:=/var/lib/docker-gc/}
