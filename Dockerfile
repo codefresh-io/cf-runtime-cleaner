@@ -7,9 +7,9 @@ RUN apk --no-cache add \
     curl
 
 # COPY ./docker-image-clean.sh docker-image-clean.sh
-COPY docker-gc run-docker-gc.sh  /
+COPY docker-prune docker-gc run-docker-gc.sh  /
 COPY /etc/ /etc/
-RUN chmod +x docker-gc run-docker-gc.sh
+RUN chmod +x docker-prune docker-gc run-docker-gc.sh
 
 ENV CLEAN_INTERVAL 3600
 
