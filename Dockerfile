@@ -1,7 +1,10 @@
-FROM codefresh/buildpacks:essential
+FROM docker:17.03
 
 #install docker
-RUN curl -sSL https://get.docker.com/ | sh
+#RUN curl -sSL https://get.docker.com/ | sh
+RUN apk --no-cache add \
+    bash \
+    curl
 
 # COPY ./docker-image-clean.sh docker-image-clean.sh
 COPY docker-gc run-docker-gc.sh  /
