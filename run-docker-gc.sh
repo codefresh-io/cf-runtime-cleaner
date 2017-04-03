@@ -1,5 +1,5 @@
-#!/bin/bash
-#
+#!/usr/bin/env bash
+
 # Runs docker-gc periodically
 
 DOCKER_GC=$(dirname $0)/docker-gc
