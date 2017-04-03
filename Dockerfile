@@ -16,4 +16,4 @@ ENV CLEAN_INTERVAL 3600
 # ENV CLEAN_PERIOD 24h
 # ENV PROTECTED_IMAGE_PREFIX codefresh-running/
 
-CMD run-docker-gc.sh
+CMD ["./run-docker-gc.sh"]
