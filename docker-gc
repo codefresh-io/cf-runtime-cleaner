@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Copyright (c) 2014 Spotify AB.
 #
@@ -46,7 +46,7 @@ NOW=$(date +%Y-%m-%d_%H%M%S)
 echo -e "\n------------ Starting $0 at $(date) --------------\n current disk usage:"
 # DOCKER_STORAGE_DIR=$(docker info 2>/dev/null | awk '/ Root Dir:/{print $3}')
 DOCKER_STORAGE_DIR=${DOCKER_STORAGE_DIR:=/}
-df -BM $DOCKER_STORAGE_DIR
+df -m $DOCKER_STORAGE_DIR
 
 
 set -o nounset
@@ -330,7 +330,7 @@ else
 fi
 
 echo "Disk Usage after normal image cleaning"
-df -BM $DOCKER_STORAGE_DIR
+df -m $DOCKER_STORAGE_DIR
 
 # Remove dangling images	
 echo -e "\nDeleting all dangling images."
@@ -341,4 +341,4 @@ if [ ! -z "${docker_dangling}" ]; then
 fi
 
 echo "Disk Usage after cleaning dangling images"
-df -BM $DOCKER_STORAGE_DIR
+df -m $DOCKER_STORAGE_DIR
