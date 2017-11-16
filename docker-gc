@@ -53,6 +53,7 @@ set -o nounset
 # set -o errexit
 
 GRACE_PERIOD_SECONDS=${GRACE_PERIOD_SECONDS:=86400}
+GRACE_CONTAINER_PERIOD_SECONDS=${GRACE_CONTAINER_PERIOD_SECONDS:=600}
 STATE_DIR=${STATE_DIR:=/var/lib/docker-gc/}
 FORCE_CONTAINER_REMOVAL=${FORCE_CONTAINER_REMOVAL:=0}
 FORCE_IMAGE_REMOVAL=${FORCE_IMAGE_REMOVAL:=1}
@@ -62,7 +63,7 @@ LOG_TO_SYSLOG=${LOG_TO_SYSLOG:=0}
 SYSLOG_FACILITY=${SYSLOG_FACILITY:=user}
 SYSLOG_LEVEL=${SYSLOG_LEVEL:=info}
 SYSLOG_TAG=${SYSLOG_TAG:=docker-gc}
-RM_DRY_RUN=${RM_DRY_RUN:=1}
+RM_DRY_RUN=${RM_DRY_RUN:=0}
 RMI_DRY_RUN=${RMI_DRY_RUN:=0}
 
 
@@ -228,13 +229,13 @@ comm -23 containers.all containers.running > containers.exited
 # CF Comment - do not remove/display containers: 
 # container_log "Container not running" containers.exited
 
-# Find exited containers that finished at least GRACE_PERIOD_SECONDS ago
+# Find exited containers that finished at least GRACE_CONTAINER_PERIOD_SECONDS ago
 echo -n "" > containers.reap.tmp
 cat containers.exited | while read line
 do
     EXITED=$(${DOCKER} inspect -f "{{json .State.FinishedAt}}" ${line})
     ELAPSED=$(elapsed_time $EXITED)
-    if [[ $ELAPSED -gt $GRACE_PERIOD_SECONDS ]]; then
+    if [[ $ELAPSED -gt $GRACE_CONTAINER_PERIOD_SECONDS ]]; then
         echo $line >> containers.reap.tmp
     fi
 done
@@ -332,13 +333,22 @@ fi
 echo "Disk Usage after normal image cleaning"
 df -m $DOCKER_STORAGE_DIR
 
-# Remove dangling images	
+# Remove dangling images
 echo -e "\nDeleting all dangling images."
 docker images --filter "dangling=true"
-docker_dangling=$(docker images -q --filter "dangling=true")
-if [ ! -z "${docker_dangling}" ]; then
-	docker rmi ${docker_dangling} || true
+docker_images_dangling=$(docker images -q --filter "dangling=true")
+if [ ! -z "${docker_images_dangling}" ]; then
+	docker rmi ${docker_images_dangling} || true
 fi
+
+# Remove dangling volumes
+echo -e "\nDeleting all dangling volumes."
+docker volume ls --filter "dangling=true"
+docker_volumes_dangling=$(docker volume ls --filter "dangling=true" | awk '$2 !~ /workflow/{print $2}')
+if [ ! -z "${docker_volumes_dangling}" ]; then
+	docker volume rm ${docker_volumes_dangling} || true
+fi
+
 
 echo "Disk Usage after cleaning dangling images"
 df -m $DOCKER_STORAGE_DIR
