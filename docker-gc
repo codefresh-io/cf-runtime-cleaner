@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Copyright (c) 2014 Spotify AB.
+# Grando Maintainer: Sir Alexei Ledenev
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -333,6 +334,20 @@ fi
 echo "Disk Usage after normal image cleaning"
 df -m $DOCKER_STORAGE_DIR
 
+clean_temporary_objects(){
+  echo -e "\n############# Cleaning Images label=io.codefresh.operationName=Exporting volume data ############# - $(date) "
+  for ii in $(docker images -q -f 'label=io.codefresh.operationName=Exporting volume data')
+  do
+    if [[ -n "${RMI_DRY_RUN}" ]]; then
+      echo "Running in DRY_RUN, just display rm commands"
+      echo docker rmi $ii
+    else
+      docker rmi $ii
+    fi
+  done
+}
+clean_temporary_objects
+
 # Remove dangling images
 echo -e "\nDeleting all dangling images."
 docker images --filter "dangling=true"
@@ -343,7 +358,7 @@ fi
 
 # Remove dangling volumes
 echo -e "\nDeleting all dangling volumes."
-docker_volumes_dangling=$(docker volume ls --filter "dangling=true" | awk '$2 !~ /workflow/{print $2}')
+docker_volumes_dangling=$(docker volume ls --filter "dangling=true" )
 if [ ! -z "${docker_volumes_dangling}" ]; then
 	docker volume rm ${docker_volumes_dangling} || true
 fi
