@@ -358,7 +358,7 @@ fi
 
 # Remove dangling volumes
 echo -e "\nDeleting all dangling volumes."
-docker_volumes_dangling=$(docker volume ls --filter "dangling=true" )
+docker_volumes_dangling=$(docker volume ls --filter "dangling=true" --format '{{ .Name }}')
 if [ ! -z "${docker_volumes_dangling}" ]; then
 	docker volume rm ${docker_volumes_dangling} || true
 fi
