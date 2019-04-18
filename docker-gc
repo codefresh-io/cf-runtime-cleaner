@@ -338,7 +338,7 @@ clean_temporary_objects(){
   echo -e "\n############# Cleaning Images label=io.codefresh.operationName=Exporting volume data ############# - $(date) "
   for ii in $(docker images -q -f 'label=io.codefresh.operationName=Exporting volume data')
   do
-    if [[ -n "${RMI_DRY_RUN}" ]]; then
+    if [[ $RMI_DRY_RUN -gt 0 ]]; then
       echo "Running in DRY_RUN, just display rm commands"
       echo docker rmi $ii
     else
