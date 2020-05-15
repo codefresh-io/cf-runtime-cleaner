@@ -5,7 +5,7 @@ RUN apk --no-cache add \
     bash \
     curl
 
-COPY docker-gc run-docker-gc.sh  /
+COPY docker-gc run-docker-gc.sh clean-loggers.sh /
 
 RUN chmod +x docker-gc run-docker-gc.sh
 
