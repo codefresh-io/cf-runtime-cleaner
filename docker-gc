@@ -348,6 +348,9 @@ clean_temporary_objects(){
 }
 clean_temporary_objects
 
+# Remove dangling loggers
+/clean-loggers.sh
+
 # Remove dangling images
 echo -e "\nDeleting all dangling images."
 docker images --filter "dangling=true"
