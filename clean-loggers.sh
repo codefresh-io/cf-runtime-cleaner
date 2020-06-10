@@ -13,11 +13,13 @@ function findDanglingLoggers() {
     
     for l in $logger_containers; do
         local l_pid=$(getPID $l)
+        local dangling="true"
+
         for u in $user_containers; do
             local u_pid=$(getPID $u)
-            local dangling="true"
+
             if [[ "$l_pid" == "$u_pid" ]]; then
-                local dangling=false
+                dangling="false"
                 break
             fi
         done
