@@ -1,4 +1,4 @@
-FROM docker:17.03
+FROM docker:20.10
 
 #install curl and bash
 RUN apk --no-cache add \
