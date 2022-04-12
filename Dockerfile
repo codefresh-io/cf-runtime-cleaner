@@ -1,6 +1,6 @@
 FROM docker:20.10
 
-#install curl and bash
+#install curl and bash 
 RUN apk --no-cache add \
     bash \
     curl
