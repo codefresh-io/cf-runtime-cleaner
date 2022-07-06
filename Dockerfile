@@ -6,7 +6,7 @@ RUN apk --no-cache add \
     curl
 
 RUN adduser -D -h /home/cfu -s /bin/bash cfu \
-    && chgrp -R $(id -g cfu) /cf-api /root \
+    && chgrp -R $(id -g cfu) /cf-runtime-cleaner /root \
     && chmod -R g+rwX /cf-runtime-cleaner /root
 USER cfu
 
