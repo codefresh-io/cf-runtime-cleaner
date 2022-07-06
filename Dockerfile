@@ -7,7 +7,7 @@ RUN apk --no-cache add \
 
 RUN adduser -D -h /home/cfu -s /bin/bash cfu \
     && chgrp -R $(id -g cfu) /cf-api /root \
-    && chmod -R g+rwX /cf-api /root
+    && chmod -R g+rwX /cf-runtime-cleaner /root
 USER cfu
 
 COPY docker-gc run-docker-gc.sh clean-loggers.sh /
