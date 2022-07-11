@@ -11,8 +11,8 @@ RUN chmod +x docker-gc run-docker-gc.sh
 
 ENV CLEAN_INTERVAL 3600
 
-RUN adduser -D -h /home/cfu -s /bin/bash cfu
-
+RUN adduser -D -h /home/cfu -s /bin/bash cfu \
+    && chown -R $(id -g cfu) /var /run /lib
 
 USER cfu
 
