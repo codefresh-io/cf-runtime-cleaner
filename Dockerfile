@@ -13,6 +13,7 @@ ENV CLEAN_INTERVAL 3600
 
 RUN adduser -D -h /home/cfu -s /bin/bash cfu
 
+
 USER cfu
 
 CMD ["./run-docker-gc.sh"]
