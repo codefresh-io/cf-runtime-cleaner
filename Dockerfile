@@ -5,6 +5,8 @@ RUN apk --no-cache add \
     bash \
     curl
 
+RUN rm /usr/local/libexec/docker/cli-plugins/*
+
 COPY docker-gc run-docker-gc.sh clean-loggers.sh /
 
 RUN chmod +x docker-gc run-docker-gc.sh
